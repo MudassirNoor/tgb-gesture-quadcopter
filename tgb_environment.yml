@@ -1,0 +1,4 @@
+name: tgb
+channels:
+  - defaults
+prefix: C:\miniconda3\envs\tgb
