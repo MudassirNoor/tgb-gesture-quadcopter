@@ -1,8 +1,7 @@
 # import the necessary packages
-from imutils.video import VideoStream
 from imutils.video import FPS
+from yoloObjectDetection.ObjectDetector import *
 import argparse
-import imutils
 import time
 import cv2
 import threading
@@ -14,6 +13,8 @@ class GestureControl:
         self.trackerType = trackerType
         self.running = False
         self.vectorLock = threading.Lock()
+        self.objectDetector = ObjectDetector(0.25, 0.4, 80, 160)
+        self.runThroughDetectorCount = 0
 
         # initialize a dictionary that maps strings to their corresponding
         # OpenCV object tracker implementations
@@ -66,7 +67,7 @@ class GestureControl:
         # if a video path was not supplied, grab the reference to the web cam
         print("[INFO] starting video stream...")
         self.running = True
-        vs = VideoStream(src=0).start()
+        cap = cv2.VideoCapture(0)
         time.sleep(1.0)
 
         # Initialise variables
@@ -80,12 +81,13 @@ class GestureControl:
         vectorZ = 0.0
 
         vectorDataSet = []
-        startTime = 0
+        startTime = time.time()
+        elapsedTimeSinceFirstDetection = 0
         # loop over frames from the video stream
-        while self.running:
+        while cap.isOpened():
             # grab the current frame, then handle if we are using a
-            # VideoStream or VideoCapture object
-            frame = vs.read()
+            # VideoStream or VideoCapture objectq
+            ret, frame = cap.read()
 
             # check to see if we have reached the end of the stream
             if frame is None:
@@ -93,19 +95,46 @@ class GestureControl:
 
             # resize the frame (so we can process it faster) and grab the
             # frame dimensions
-            frame = imutils.resize(frame, width=500)
+            # frame = cv2.resize(frame, (320, 320))
             (H, W) = frame.shape[:2]
+            print(H, W)
 
-                # check to see if we are currently tracking an object
+            key = cv2.waitKey(1) & 0xFF
+
+            if key == ord("q"):
+                break
+
+            # Check if we have detected initial bounding box or how many times we ran it through the detector
+            # The detector count is meant to refine the bounding box location
+            if initBB == None or elapsedTimeSinceFirstDetection > 10:
+                initBB = self.objectDetector.detectObject(ret, frame)
+                if initBB != None:
+                    # start OpenCV object tracker using the supplied bounding box
+                    # coordinates, then start the FPS throughput estimator as well
+                    # self.tracker.init(frame, initBB)
+                    elapsedTimeSinceFirstDetection = time.time() - startTime
+                    self.tracker.init(frame, initBB)
+                    fps = FPS().start()
+                    print(initBB)
+                    startTime = time.time()
+                    cv2.rectangle(frame, tuple(initBB[0:2]), tuple(initBB[2:4]), (0, 255, 0), 2)
+                    cv2.imshow("Frame", frame)
+
+                else:
+                    continue
+
+
+            # check to see if we are currently tracking an object
             if initBB is not None:
+                print("Tracking object")
                 # grab the new bounding box coordinates of the object
-                (success, box) = self.tracker.update(frame)
 
+                (success, box) = self.tracker.update(frame)
+                print(box)
                 # check to see if the tracking was a success
                 if success:
                     (x, y, w, h) = [int(v) for v in box]
-                    cv2.rectangle(frame, (x, y), (x + w, y + h),
-                        (0, 255, 0), 2)
+                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
                     vectorX += x + w/2 - preX
                     vectorY += y + h/2 - preY
@@ -147,28 +176,12 @@ class GestureControl:
 
             # show the output frame
             cv2.imshow("Frame", frame)
-            key = cv2.waitKey(1) & 0xFF
-
-            # if the 's' key is selected, we are going to "select" a bounding
-            # box to track
-            if key == ord("s"):
-                # select the bounding box of the object we want to track (make
-                # sure you press ENTER or SPACE after selecting the ROI)
-                initBB = cv2.selectROI("Frame", frame, fromCenter=False,
-                    showCrosshair=True)
-                startTime = time.time()
-
-                # start OpenCV object tracker using the supplied bounding box
-                # coordinates, then start the FPS throughput estimator as well
-                self.tracker.init(frame, initBB)
-                fps = FPS().start()
 
             # if the `q` key was pressed, break from the loop
-            elif key == ord("q"):
+            if key == ord("q"):
                 break
 
         # if we are using a webcam, release the pointer
-        vs.stop()
         self.running = False
 
         # close all windows
@@ -241,7 +254,7 @@ class GestureControl:
 if __name__ == "__main__":
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser()
-    ap.add_argument("-p", "--playback", type=str, default="Ge",
+    ap.add_argument("-p", "--playback", type=str, default="",
         help="Specify playback file")
     ap.add_argument("-t", "--tracker", type=str, default="csrt",
         help="OpenCV object tracker type")
@@ -260,8 +273,8 @@ if __name__ == "__main__":
     gestureControlThread.setDaemon = True
     gestureControlThread.start()
 
-    time.sleep(0.2)
-    while gestureControl.checkRunning():
-        time.sleep(0.05)
-        print(gestureControl.grabVector())
+    # time.sleep(0.2)
+    # while gestureControl.checkRunning():
+    #     time.sleep(0.05)
+    #     print(gestureControl.grabVector())
 
