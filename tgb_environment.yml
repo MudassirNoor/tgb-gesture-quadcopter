@@ -1,4 +1,72 @@
-name: tgb
+name: TGB
 channels:
+  - pytorch
+  - intel
+  - conda-forge
   - defaults
-prefix: C:\miniconda3\envs\tgb
+dependencies:
+  - blas=1.0=mkl
+  - ca-certificates=2020.7.22=0
+  - certifi=2020.6.20=py37_0
+  - cudatoolkit=10.1.243=h74a9793_0
+  - cycler=0.10.0=py_2
+  - freetype=2.10.2=hd328e21_0
+  - icc_rt=2019.0.0=h0cc432a_1
+  - icu=64.2=he025d50_1
+  - imutils=0.5.3=py37hc8dfbb8_2
+  - intel-openmp=2020.2=intel_254
+  - intelpython=2020.2=0
+  - jpeg=9d=he774522_0
+  - kiwisolver=1.2.0=py37heaa310e_0
+  - libblas=3.8.0=8_h8933c1f_netlib
+  - libcblas=3.8.0=8_h8933c1f_netlib
+  - libclang=9.0.1=default_hf44288c_0
+  - liblapack=3.8.0=8_h8933c1f_netlib
+  - liblapacke=3.8.0=8_h8933c1f_netlib
+  - libopencv=4.4.0=py37_2
+  - libpng=1.6.37=ha81a0f5_2
+  - libtiff=4.1.0=h885aae3_6
+  - libwebp-base=1.1.0=hfa6e2cd_3
+  - lz4-c=1.9.2=h62dcd97_2
+  - m2w64-gcc-libgfortran=5.3.0=6
+  - m2w64-gcc-libs=5.3.0=7
+  - m2w64-gcc-libs-core=5.3.0=7
+  - m2w64-gmp=6.1.0=2
+  - m2w64-libwinpthread-git=5.0.0.4634.697f757=2
+  - matplotlib-base=3.3.1=py37h35e8a6e_1
+  - mkl=2020.3=intel_279
+  - mkl-service=2.3.0=py37he774522_4
+  - msys2-conda-epoch=20160418=1
+  - ninja=1.10.1=py37h7ef1ec2_0
+  - olefile=0.46=py_0
+  - opencv=4.4.0=py37_2
+  - openssl=1.1.1g=he774522_1
+  - pillow=7.2.0=py37hc826c6e_1
+  - pip=20.1=py37_0
+  - py-opencv=4.4.0=py37h43977f1_2
+  - pyparsing=2.4.7=pyh9f0ad1d_0
+  - python=3.7.7=h81c818b_4
+  - python-dateutil=2.8.1=py_0
+  - python_abi=3.7=1_cp37m
+  - pytorch=1.6.0=py3.7_cuda101_cudnn7_0
+  - qt=5.12.5=h7ef1ec2_0
+  - scipy=1.5.2=py37h9439919_0
+  - setuptools=47.3.0=py37_0
+  - six=1.15.0=py37_0
+  - sqlite=3.32.1=vc14he774522_1
+  - tbb=2020.3=vc14_intel_254
+  - tk=8.6.10=he774522_0
+  - torchvision=0.7.0=py37_cu101
+  - tornado=6.0.4=py37hfa6e2cd_0
+  - vc=14.1=h21ff451_12
+  - vs2015_runtime=14.16.27012=hf0eaf9b_12
+  - wheel=0.34.2=py37_4
+  - wincertstore=0.2=py37_3
+  - xz=5.2.5=h62dcd97_1
+  - zlib=1.2.11=h62dcd97_1009
+  - zstd=1.4.5=h1f3a1b7_2
+  - pip:
+    - numpy==1.19.2
+    - opencv-contrib-python==4.4.0.42
+    - opencv-python==4.4.0.42
+prefix: C:\miniconda3\envs\TGB
