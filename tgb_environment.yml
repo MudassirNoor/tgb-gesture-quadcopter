@@ -68,5 +68,4 @@ dependencies:
   - pip:
     - numpy==1.19.2
     - opencv-contrib-python==4.4.0.42
-    - opencv-python==4.4.0.42
 prefix: C:\miniconda3\envs\TGB
