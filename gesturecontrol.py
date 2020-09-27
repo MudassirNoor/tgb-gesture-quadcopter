@@ -106,13 +106,12 @@ class GestureControl:
 
             # Check if we have detected initial bounding box or how many times we ran it through the detector
             # The detector count is meant to refine the bounding box location
-            if initBB == None or elapsedTimeSinceFirstDetection > 10:
+            if initBB == None:
                 initBB = self.objectDetector.detectObject(ret, frame)
                 if initBB != None:
                     # start OpenCV object tracker using the supplied bounding box
                     # coordinates, then start the FPS throughput estimator as well
                     # self.tracker.init(frame, initBB)
-                    elapsedTimeSinceFirstDetection = time.time() - startTime
                     self.tracker.init(frame, initBB)
                     fps = FPS().start()
                     print(initBB)

@@ -60,7 +60,7 @@ class ObjectDetector:
                 cls = int(tensor[-1])
                 label = "{0}".format(self.classes[cls])
                 if (label == "cell phone"):
-                    boundingBox = (c1[0].item(), c1[1].item(), c2[0].item(), c2[1].item())
+                    boundingBox = (c1[0].item(), c1[1].item(), c2[0].item() - c1[0].item(), c2[1].item() - c1[1].item())
                     return boundingBox
 
         return None
