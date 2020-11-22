@@ -106,72 +106,90 @@ class GestureControl:
 
             # Check if we have detected initial bounding box or how many times we ran it through the detector
             # The detector count is meant to refine the bounding box location
-            if initBB == None:
-                initBB = self.objectDetector.detectObject(ret, frame)
-                if initBB != None:
-                    # start OpenCV object tracker using the supplied bounding box
-                    # coordinates, then start the FPS throughput estimator as well
-                    # self.tracker.init(frame, initBB)
-                    self.tracker.init(frame, initBB)
-                    fps = FPS().start()
-                    print(initBB)
-                    startTime = time.time()
-                    cv2.rectangle(frame, tuple(initBB[0:2]), tuple(initBB[2:4]), (0, 255, 0), 2)
-                    cv2.imshow("Frame", frame)
+            # if initBB == None:
+            #     initBB = self.objectDetector.detectObject(ret, frame)
+            #     if initBB != None:
+            #         # start OpenCV object tracker using the supplied bounding box
+            #         # coordinates, then start the FPS throughput estimator as well
+            #         # self.tracker.init(frame, initBB)
+            #         self.tracker.init(frame, initBB)
+            #         fps = FPS().start()
+            #         print(initBB)
+            #         startTime = time.time()
+            #         cv2.rectangle(frame, tuple(initBB[0:2]), tuple(initBB[2:4]), (0, 255, 0), 2)
+            #         cv2.imshow("Frame", frame)
 
-                else:
-                    continue
+            #     else:
+            #         continue
 
+            # ___________ Start of object detection without object tracker __________
+            fps = FPS().start()
 
-            # check to see if we are currently tracking an object
-            if initBB is not None:
-                print("Tracking object")
-                # grab the new bounding box coordinates of the object
+            objBB = self.objectDetector.detectObject(ret, frame)
+            
+            if objBB:
+               
+                print(objBB)
+                
+                x1,y1,x2,y2 = objBB
+                cv2.rectangle(frame, (x1, y1), (x1+x2, y1+y2), (0,255,0), 2)
+                
 
-                (success, box) = self.tracker.update(frame)
-                print(box)
-                # check to see if the tracking was a success
-                if success:
-                    (x, y, w, h) = [int(v) for v in box]
-                    cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-                    vectorX += x + w/2 - preX
-                    vectorY += y + h/2 - preY
-                    vectorZ += 0.0 # Needs work
-                    preX = x + w/2
-                    preY = y + h/2
-
-                    # If unable to acquire the lock, don't update the vectors
-                    if self.updateVectors(vectorX, vectorY, vectorZ) is True:
-                        vectorX = 0.0
-                        vectorY = 0.0
-                        vectorZ = 0.0
-
-                    elapsedTimeSinceFirstDetection = time.time() - startTime
-                    if writecsv:
-                        data = list(self.grabVector())
-                        data.append(elapsedTimeSinceFirstDetection)
-                        vectorDataSet.append(data)
-
-                # update the FPS counter
                 fps.update()
                 fps.stop()
+                print("FPS", "{:.2f}".format(fps.fps()))
+            # ___________ End of object detection without object tracker __________
 
-                # initialize the set of information we'll be displaying on
-                # the frame
-                info = [
-                    ("Tracker", self.trackerType),
-                    ("Success", "Yes" if success else "No"),
-                    ("FPS", "{:.2f}".format(fps.fps())),
-                    ("Centre of Box", "{}: {}".format(x + w/2, y + h/2)),
-                    ("Vector of Box", "{:.2f}, {:.2f}, {:.2f}".format(self.vectorX, self.vectorY, self.vectorZ)),
-                ]
 
-                # loop over the info tuples and draw them on our frame
-                for (i, (k, v)) in enumerate(info):
-                    text = "{}: {}".format(k, v)
-                    cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            # # check to see if we are currently tracking an object
+            # if initBB is not None:
+            #     print("Tracking object")
+            #     # grab the new bounding box coordinates of the object
+
+            #     (success, box) = self.tracker.update(frame)
+            #     print(box)
+            #     # check to see if the tracking was a success
+            #     if success:
+            #         (x, y, w, h) = [int(v) for v in box]
+            #         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+            #         vectorX += x + w/2 - preX
+            #         vectorY += y + h/2 - preY
+            #         vectorZ += 0.0 # Needs work
+            #         preX = x + w/2
+            #         preY = y + h/2
+
+            #         # If unable to acquire the lock, don't update the vectors
+            #         if self.updateVectors(vectorX, vectorY, vectorZ) is True:
+            #             vectorX = 0.0
+            #             vectorY = 0.0
+            #             vectorZ = 0.0
+
+            #         elapsedTimeSinceFirstDetection = time.time() - startTime
+            #         if writecsv:
+            #             data = list(self.grabVector())
+            #             data.append(elapsedTimeSinceFirstDetection)
+            #             vectorDataSet.append(data)
+
+            #     # update the FPS counter
+            #     fps.update()
+            #     fps.stop()
+
+            #     # initialize the set of information we'll be displaying on
+            #     # the frame
+            #     info = [
+            #         ("Tracker", self.trackerType),
+            #         ("Success", "Yes" if success else "No"),
+            #         ("FPS", "{:.2f}".format(fps.fps())),
+            #         ("Centre of Box", "{}: {}".format(x + w/2, y + h/2)),
+            #         ("Vector of Box", "{:.2f}, {:.2f}, {:.2f}".format(self.vectorX, self.vectorY, self.vectorZ)),
+            #     ]
+
+            #     # loop over the info tuples and draw them on our frame
+            #     for (i, (k, v)) in enumerate(info):
+            #         text = "{}: {}".format(k, v)
+            #         cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
+            #             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
             # show the output frame
             cv2.imshow("Frame", frame)
